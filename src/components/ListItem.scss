@@ -1,0 +1,21 @@
+.list-item{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    .list-item__title{
+        font-size: 1.2em;
+        font-weight: 600;
+    }
+    .list-item__subtitle{
+        font-size: 0.8em;
+        font-weight: 400;
+        color: #999;
+    }
+    .list-item__icon{
+        font-size: 1.2em;
+        color: #999;
+    }
+}
