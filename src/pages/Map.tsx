@@ -1,51 +1,65 @@
-import React, { useEffect, useState } from "react";
-import { IonContent, IonPage } from "@ionic/react";
-import ListItem from "../components/ListItem";
-import { Stop } from "../models/Stop";
-import { Cluster } from "../models/Cluster";
+import React, { useEffect, useState, useCallback } from "react";
+import { IonContent, IonLoading, IonPage } from "@ionic/react";
+import { Line } from "../models/Line";
+import LinesList from "../components/LinesList";
 import "./Map.css";
+import { Geolocation, Position } from "@capacitor/geolocation";
 
 const Map = () => {
-  const [stop, setStop] = useState<Stop>();
-  const [cluster, setCluster] = useState<Cluster>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [lines, setLines] = useState<Line[]>([] as Line[]);
+  const [position, setPosition] = useState<Position | null>();
 
-  const url =
-    "https://data.mobilites-m.fr/api/routers/default/index/stops/SEM:2227/stoptimes/";
-  const urlCluster =
-    "https://data.mobilites-m.fr/api/routers/default/index/clusters/SEM:GENVALMY/stoptimes/";
-
-  const fetchStop = async () => {
-    const response = await fetch(url);
-    const data = await response.json();
-    const error = await data.error;
-    if (error) {
-      console.log(error);
+  const getLocation = async () => {
+    setLoading(true);
+    try {
+      const position = await Geolocation.getCurrentPosition();
+      setPosition(position);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
     }
-    setStop(data[0]);
   };
 
-  const fetchCluster = async () => {
-    const response = await fetch(urlCluster);
-    const data = await response.json();
-    const error = await data.error;
-    if (error) {
-      console.log(error);
-    }
-    setCluster(data);
-  };
+  const fetchNearLines = useCallback(
+    async (position: Position | null | undefined) => {
+      if (position) {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://data.mobilites-m.fr/api/linesNear/json?x=5.74488583065511&y=45.187568079076065&dist=400&details=true`
+          );
+          const data = await response.json();          
+          const error = await data.error;
+          if (error) {
+            console.log(error);
+          }
+          setLines(data);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    fetchStop();
-    fetchCluster();
+    getLocation();
   }, []);
+
+  useEffect(() => {
+    fetchNearLines(position);
+  }, [position, fetchNearLines]);
 
   return (
     <IonPage>
       <IonContent fullscreen>
-        {stop && <ListItem stop={stop} />}
-        {cluster?.stops?.map((stop) => {
-          return <ListItem stop={stop} />;
-        })}
+        <IonLoading
+          isOpen={loading}
+          message={"Getting location..."}
+          onDidDismiss={() => setLoading(false)}
+        />
+        <LinesList lines={lines} />
       </IonContent>
     </IonPage>
   );

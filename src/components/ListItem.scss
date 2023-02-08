@@ -4,18 +4,38 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #fff;
+    height: 100%;
+    .list-item__routes {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+    }
     .list-item__title{
         font-size: 1.2em;
         font-weight: 600;
     }
     .list-item__subtitle{
-        font-size: 0.8em;
+        font-size: 1em;
         font-weight: 400;
-        color: #999;
+        opacity: 0.5;
     }
-    .list-item__icon{
+    .line-icon{
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: block;
+        text-align: center;
+        line-height: 30px;
+        text-decoration: none;
+        color: #fff;
         font-size: 1.2em;
-        color: #999;
+        font-weight: bold;  
+    }
+    .list-item__times {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-end;
     }
 }

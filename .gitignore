@@ -20,6 +20,7 @@
 /.vscode/*
 !/.vscode/extensions.json
 .idea
+/src/react-app-env.d.ts
 
 npm-debug.log*
 yarn-debug.log*
