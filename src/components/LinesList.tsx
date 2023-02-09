@@ -11,8 +11,8 @@ interface LinesListProps {
 const LinesList = ({ lines }: LinesListProps) => {
   return (
     <IonList>
-      {lines.map((line) => {
-        return <ListItem key={line.id} line={line} />;
+      {lines.map((line, index) => {
+        return <ListItem key={index} line={line} />;
       })}
     </IonList>
   );

@@ -17,12 +17,24 @@ const ListItem = ({ line }: ListItemProps) => {
   const fetchRoutes = useCallback(async () => {
     if (line) {
       try {
-        const response = await fetch(
-          `https://data.mobilites-m.fr/api/routers/default/index/stops/${line.id}/routes`
-        );
-        const data = await response.json();
-        // separate the data into two arrays if
-        setRoutes(data as Route[]);
+        const lineRoutes = line.lines;
+        if (lineRoutes) {
+          lineRoutes.map(async (route) => {
+            const response = await axios.get(
+              `https://data.mobilites-m.fr/api/routers/default/index/routes?codes=${route}`
+            );
+            const data = await response.data;
+            console.log(data);
+            const error = await data.error;
+            if (error) {
+              console.log(error);
+            }
+            setRoutes((routes) => [...routes, data[0]]);
+          });
+        } else {
+          setRoutes([]);
+          console.log("No routes");
+        }
       } catch (error) {
         console.log(error);
       }
@@ -58,7 +70,7 @@ const ListItem = ({ line }: ListItemProps) => {
     fetchStops();
     setInterval(() => {
       fetchStops();
-    }, 10000);
+    }, 30000);
   }, [fetchStops]);
 
   function toHoursAndMinutes(totalSeconds: any) {
@@ -79,7 +91,7 @@ const ListItem = ({ line }: ListItemProps) => {
       const timeDifference = arrivalTime.m - nowTime.m;
 
       return (
-        <p key={time.stopId}>
+        <p key={time.realtimeArrival}>
           {timeDifference > 0 ? timeDifference : "0"} minutes
         </p>
       );
@@ -88,39 +100,45 @@ const ListItem = ({ line }: ListItemProps) => {
 
   return (
     <IonLabel className="list-item">
-      {/* <div className="list-item__routes">
-        {routes.map((route) => {
-          return (
-            <a
-              key={route.id}
-              className="line-icon"
-              style={{ backgroundColor: `#${route.color}` }}
-              // href={`/line/${r.id}`}
-              href={"/"}
-            >
-              {route.shortName}
-            </a>
-          );
-        })}
-      </div>*/}
+      <div className="list-item__routes">
+        {routes
+          ? routes.map((route, index) => {
+              return (
+                <a
+                  key={index}
+                  className="line-icon"
+                  style={{ backgroundColor: `#${route.color}` }}
+                  // href={`/line/${r.id}`}
+                  href={"/"}
+                >
+                  {route.shortName}
+                </a>
+              );
+            })
+          : null}
+      </div>
       <div className="list-item__direction">
-        {stops.map((stop) => {
-          return (
-            <h3 className="list-item__title" key={stop.pattern.id}>
-              {stop.pattern.lastStopName}
-            </h3>
-          );
-        })}
+        {stops
+          ? stops.map((stop, index) => {
+              return (
+                <h3 className="list-item__title" key={stop.pattern.id}>
+                  {stop.pattern.lastStopName}
+                </h3>
+              );
+            })
+          : null}
         <p className="list-item__subtitle">{line.name}</p>
       </div>
       <div className="list-item__times">
-        {timesArray.map((time, index) => {
-          return (
-            <div className="list-item__time" key={index}>
-              {time}
-            </div>
-          );
-        })}
+        {timesArray
+          ? timesArray.map((time, index) => {
+              return (
+                <div className="list-item__time" key={index}>
+                  {time[0]}
+                </div>
+              );
+            })
+          : null}
       </div>
     </IonLabel>
   );

@@ -14,6 +14,7 @@ const Map = () => {
     setLoading(true);
     try {
       const position = await Geolocation.getCurrentPosition();
+      console.log(position);
       setPosition(position);
       setLoading(false);
     } catch (error) {
@@ -27,9 +28,9 @@ const Map = () => {
         try {
           const { latitude, longitude } = position.coords;
           const response = await fetch(
-            `https://data.mobilites-m.fr/api/linesNear/json?x=5.74488583065511&y=45.187568079076065&dist=400&details=true`
+            `https://data.mobilites-m.fr/api/linesNear/json?x=${5.744842915341459}&y=${45.1879612786524}&dist=500&details=true`
           );
-          const data = await response.json();          
+          const data = await response.json();     
           const error = await data.error;
           if (error) {
             console.log(error);
