@@ -3,13 +3,18 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 1.5rem;
     border-bottom: 1px solid #fff;
-    height: 100px;
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 10px;
+    }
     .list-item__routes {
         display: flex;
         flex-direction: row;
-        gap: 5px;
+        gap: 10px;
+        align-items: center;
+
     }
     .list-item__title{
         font-size: 1.2em;
@@ -37,5 +42,9 @@
         flex-direction: column;
         gap: 5px;
         align-items: flex-end;
+    }
+    .list-item__direction {
+        overflow: hidden;
+        text-align: center;
     }
 }

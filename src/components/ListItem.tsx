@@ -1,77 +1,46 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { IonLabel, IonList } from "@ionic/react";
+import { IonLabel } from "@ionic/react";
+import { useFetch } from "../hooks/useFetch";
 import { Route } from "../models/Route";
 import { Stop } from "../models/Stop";
 import { Line } from "../models/Line";
 import "./ListItem.scss";
 
 interface ListItemProps {
-  line: Line;
+  line: string;
+  zone: string;
+  name: string;
 }
 
-const ListItem = ({ line }: ListItemProps) => {
+const ListItem = ({ line, zone, name }: ListItemProps) => {
+  const zoneFormatted = zone.replace("_", ":");
   const [routes, setRoutes] = useState<Route[]>([] as Route[]);
   const [stops, setStops] = useState<Stop[]>([] as Stop[]);
-
-  const fetchRoutes = useCallback(async () => {
-    if (line) {
-      try {
-        const lineRoutes = line.lines;
-        if (lineRoutes) {
-          lineRoutes.map(async (route) => {
-            const response = await axios.get(
-              `https://data.mobilites-m.fr/api/routers/default/index/routes?codes=${route}`
-            );
-            const data = await response.data;
-            console.log(data);
-            const error = await data.error;
-            if (error) {
-              console.log(error);
-            }
-            setRoutes((routes) => [...routes, data[0]]);
-          });
-        } else {
-          setRoutes([]);
-          console.log("No routes");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }, [line]);
-
-  const fetchStops = useCallback(async () => {
-    if (line) {
-      try {
-        const response = await axios.get(
-          `https://data.mobilites-m.fr/api/routers/default/index/stops/${line.id}/stoptimes`,
-          {
-            params: {
-              startTime: "2021-03-01T00:00:00Z",
-              timeRange: 86400,
-            },
-          }
-        );
-        const data = await response.data;
-        setStops(data as Stop[]);
-        console.log(data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }, [line]);
+  const { data: dataRoutes, loading: loadingRoutes } = useFetch(
+    `https://data.mobilites-m.fr/api/routers/default/index/routes?codes=${line}`
+  );
+  const { data: dataStops, loading: loadingStops } = useFetch(
+    `https://data.mobilites-m.fr/api/routers/default/index/clusters/${zoneFormatted}/stoptimes?route=${line}`
+  );
 
   useEffect(() => {
-    fetchRoutes();
-  }, [fetchRoutes]);
+    if (dataRoutes) {
+      setRoutes(dataRoutes);
+    }
+  }, [dataRoutes]);
 
   useEffect(() => {
-    fetchStops();
-    setInterval(() => {
-      fetchStops();
+    if (dataStops) {
+      setStops(dataStops);
+    }
+    setTimeout(() => {
+      if (dataStops) {
+        console.log("dataStops", dataStops);
+        setStops(dataStops);
+      }
     }, 30000);
-  }, [fetchStops]);
+  }, [dataStops]);
 
   function toHoursAndMinutes(totalSeconds: any) {
     const totalMinutes = Math.floor(totalSeconds / 60);
@@ -98,6 +67,10 @@ const ListItem = ({ line }: ListItemProps) => {
     });
   });
 
+  const filteredStops = stops.filter((stop) => {
+    return stop.times.length > 0;
+  });
+
   return (
     <IonLabel className="list-item">
       <div className="list-item__routes">
@@ -108,18 +81,18 @@ const ListItem = ({ line }: ListItemProps) => {
                   key={index}
                   className="line-icon"
                   style={{ backgroundColor: `#${route.color}` }}
-                  // href={`/line/${r.id}`}
-                  href={"/"}
+                  href={`/route/${route.id}`}
                 >
                   {route.shortName}
                 </a>
               );
             })
           : null}
+        <p className="list-item__subtitle">{name}</p>
       </div>
       <div className="list-item__direction">
         {stops
-          ? stops.map((stop, index) => {
+          ? filteredStops.map((stop) => {
               return (
                 <h3 className="list-item__title" key={stop.pattern.id}>
                   {stop.pattern.lastStopName}
@@ -127,7 +100,7 @@ const ListItem = ({ line }: ListItemProps) => {
               );
             })
           : null}
-        <p className="list-item__subtitle">{line.name}</p>
+          {stops.length === 0 ? <p className="list-item__title">No data</p> : null}
       </div>
       <div className="list-item__times">
         {timesArray
@@ -139,6 +112,7 @@ const ListItem = ({ line }: ListItemProps) => {
               );
             })
           : null}
+          {stops.length === 0 ? <p className="list-item__time">No data</p> : null}
       </div>
     </IonLabel>
   );

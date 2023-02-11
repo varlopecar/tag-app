@@ -9,10 +9,42 @@ interface LinesListProps {
 }
 
 const LinesList = ({ lines }: LinesListProps) => {
+  const linesList = lines.map((line) => {
+    return {
+      id: line.latitude,
+      zone: line.zone,
+      lines: line.lines,
+      name: line.name,
+    };
+  });
+
+  // eliminate duplicates
+  const uniqueLinesList = linesList.filter(
+    (thing, index, self) =>
+      index ===
+      self.findIndex(
+        (t) =>
+          t.lines[0] === thing.lines[0] &&
+          t.zone === thing.zone &&
+          t.name === thing.name
+      )
+  );
+
+  console.log("uniqueLinesList", uniqueLinesList);
+
   return (
     <IonList>
-      {lines.map((line, index) => {
-        return <ListItem key={index} line={line} />;
+      {uniqueLinesList.map((element) => {
+        return element.lines.map((line) => {
+          return (
+            <ListItem
+              key={element.id}
+              line={line}
+              zone={element.zone}
+              name={element.name}
+            />
+          );
+        });
       })}
     </IonList>
   );

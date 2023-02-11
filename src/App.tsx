@@ -10,7 +10,7 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { square, map, time } from "ionicons/icons";
+import { settings, map, navigate } from "ionicons/icons";
 import Tab3 from "./pages/Tab3";
 
 /* Core CSS required for Ionic components to work properly */
@@ -33,6 +33,7 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import Map from "./pages/Map";
 import Directions from "./pages/Directions";
+import RouteDetails from "./pages/RouteDetails";
 
 setupIonicReact();
 
@@ -50,6 +51,7 @@ const App: React.FC = () => (
           <Route path="/tab3">
             <Tab3 />
           </Route>
+          <Route exact path="/route/:id" component={RouteDetails} />
           <Route exact path="/">
             <Redirect to="/map" />
           </Route>
@@ -60,12 +62,12 @@ const App: React.FC = () => (
             <IonLabel>Map</IonLabel>
           </IonTabButton>
           <IonTabButton tab="directions" href="/directions">
-            <IonIcon icon={time} />
+            <IonIcon icon={navigate} />
             <IonLabel>Directions</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon icon={square} />
-            <IonLabel>Tab 3</IonLabel>
+            <IonIcon icon={settings} />
+            <IonLabel>Configuration</IonLabel>
           </IonTabButton>
         </IonTabBar>
       </IonTabs>

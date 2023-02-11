@@ -1,0 +1,20 @@
+.route-details-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;    
+}
+
+.line-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: block;
+    text-align: center;
+    line-height: 40px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: bold;  
+}
